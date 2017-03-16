@@ -1,4 +1,12 @@
 angular.module('app', [])
+    .directive('changeColor', function(){
+        element.bind('mouseenter', function(){
+            element.css('background-color', 'yellow');
+        });
+        element.bind('mouseleave', function(){
+            element.css('background-color', 'white');
+        });
+    })
     .controller('matchController', function ($scope) {
         let self = this;
         self.score = 0;
