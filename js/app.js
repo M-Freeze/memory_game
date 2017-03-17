@@ -1,17 +1,34 @@
 angular.module('app', [])
-    .directive('changeColor', function() {
+    .directive('changeColor', function () {
         return {
-            link: function($scope, element, attrs) {
-                element.bind('mouseenter', function() {
-                    element.css('background-color', 'yellow');
-                });
-                element.bind('mouseleave', function() {
-                    element.css('background-color', 'white');
-                });
+            link: function ($scope, element, attrs) {
+                let attClass = attrs.class;
+                if (attClass.includes('glyphicon-question-sign')) {
+                    element.bind('mouseenter', function () {
+                        element.css('color', 'yellow');
+                    });
+                    element.bind('mouseleave', function () {
+                        element.css('color', 'black');
+                    });
+                }
             }
         };
     })
-    .controller('matchController', function ($scope) {
+
+    .directive('compile', ['$compile', function ($compile) {
+        return function (scope, element, attrs) {
+            scope.$watch(
+                function (scope) {
+                    return scope.$eval(attrs.compile);
+                },
+                function (value) {
+                    element.html(value);
+                    $compile(element.contents())(scope);
+                }
+            );
+        };
+    }])
+    .controller('matchController', function ($scope, $sce) {
         let self = this;
         self.score = 0;
         self.message = '';
@@ -29,6 +46,8 @@ angular.module('app', [])
         self.fieldSize = 4;
         self.numberOfClicks = 0;
         self.isMatch = false;
+        self.gameFieldHtml = "";
+
 
         self.convertTo2D = function (temp1D, temp2D) {
             let count = 0;
@@ -47,14 +66,13 @@ angular.module('app', [])
             for (let i = 0; i < self.fieldSize; i++) {
                 tempMessage += "<div class='row'><div class='col-md-2'></div>";
                 for (let j = 0; j < self.fieldSize; j++) {
-                    let tempClickString = "'match.clickLogic(self.id2D["+i+"]["+j+"], self.image2D["+i+"]["+j+"])'";
-                    console.log(tempClickString);
-                    tempMessage += "<div id='" + self.id2D[i][j] + "' class='" + self.class2D[i][j] + " text-center' data='" + self.image2D[i][j] + "' ng-click="+tempClickString+"></div>";
+                    let tempClickString = "'match.clickLogic(match.id2D[" + i + "][" + j + "], match.image2D[" + i + "][" + j + "], match.class2D[" + i + "][" + j + "])'";
+                    tempMessage += "<div id='" + self.id2D[i][j] + "' class='" + self.class2D[i][j] + " text-center' data='" + self.image2D[i][j] + "' ng-click=" + tempClickString + " change-color></div>";
                 }
                 tempMessage += "</div>";
             }
             tempMessage += "</div><div class='col-md-2'></div></div>";
-            return tempMessage;
+            self.gameFieldHtml = tempMessage;
         };
 
         self.generateField = function () {
@@ -67,7 +85,6 @@ angular.module('app', [])
         };
 
         self.generateIconImages = function () {
-            console.log('1');
             self.icons.length = 0;
             self.id1D.length = 0;
             self.class1D.length = 0;
@@ -107,7 +124,6 @@ angular.module('app', [])
         };
 
         self.generateIconImages();
-        self.drawField();
 
         self.reset = function () {
             self.message = "Game Reset!";
@@ -119,16 +135,17 @@ angular.module('app', [])
             self.generateIconImages();
         };
 
-        self.clickLogic = function (clickedId, clickedData) {
+        self.clickLogic = function (clickedId, clickedData, clickedClass) {
+            if (clickedClass.includes('gameCellMatched')) return;
             let first, second;
-            self.message.length = 0;
+            self.message = '';
             self.clicksID.push(clickedId);
-
             first = parseInt(clickedId.substr(0, 1));
             second = parseInt(clickedId.substr(2, 3));
             let tempClassInsert = " col-md-2 ";
             self.class2D[first][second] = "gameCell center-block glyphicon " + tempClassInsert + " glyphicon-" + self.image2D[first][second];
             self.drawField();
+
 
             self.numberOfClicks++;
             if (self.numberOfClicks === 2) {
@@ -164,3 +181,4 @@ angular.module('app', [])
             }
         }
     });
+
