@@ -10,6 +10,7 @@
         <link href="css/app.css" rel="stylesheet">
 
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
@@ -21,17 +22,17 @@
         <div class="container">
             <div class="row">
                 <div id="score" class="col-md-offset-2 col-md-3 text-center">
-                    <div id="gameScore" class="h3"></div>
+                    <div id="gameScore" class="h3" ng-bind="match.score"></div>
                 </div>
                 <div class="col-md-2 text-center">
-                    <button id="resetButton" type="button" class="btn btn-primary btn-lg" ng-click = "match.reset()">Reset</button>
+                    <button id="resetButton" type="button" class="btn btn-primary btn-lg" ng-click="match.reset()">Reset</button>
                 </div>
-                <div class="col-md-3 text-center" ng-show="match.length > 0">
-                    <div id="message" class="h4 alert alert-info" hidden></div>
+                <div class="col-md-3 text-center">
+                    <div id="message" class="h4 alert alert-info" ng-show="match.message.length > 0" ng-bind="match.message"></div>
                 </div>
             </div>
             <div id="gameField">
-                <div id="field" class="center-block well"></div>
+                <div id="field" class="center-block well" compile="match.gameFieldHtml"></div>
             </div>		
         </div>
     </body>
