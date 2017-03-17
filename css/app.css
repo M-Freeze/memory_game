@@ -1,7 +1,9 @@
 .gameCell, .gameCellMatched{
     font-size: 3em;
 }
-
+.gameCell{
+    color:black;
+}
 .gameCellMatched{
     color:red;
 }
