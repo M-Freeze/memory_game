@@ -2,8 +2,7 @@ angular.module('app', [])
     .directive('changeColor', function () {
         return {
             link: function ($scope, element, attrs) {
-                let attClass = attrs.class;
-                if (attClass.includes('glyphicon-question-sign')) {
+                if (attrs.class.includes('glyphicon-question-sign')) {
                     element.bind('mouseenter', function () {
                         element.css('color', 'yellow');
                     });
@@ -28,29 +27,27 @@ angular.module('app', [])
             );
         };
     }])
+
     .controller('matchController', function ($scope, $sce) {
         let self = this;
-        self.score = 0;
-        self.message = '';
-        self.id1D = [];
-        self.id2D = [];
-        self.image1D = [];
-        self.image2D = [];
-        self.class1D = [];
-        self.class2D = [];
-        self.clicks = [];
-        self.clicksID = [];
-        self.icons = [];
-        self.iconImages = ["music", "envelope", "home", "glass", "film", "camera", "calendar", "plane",
-            "globe", "tree-conifer", "piggy-bank", "scissors"]; // all possible iconImages
+        self.score = 0; // holds score displayed in score div
+        self.message = ''; // holds message that is displayed in message div
+        self.id1D = []; // holds 1d array of icon ID's
+        self.id2D = []; // holds 2d array of icon ID's
+        self.image1D = []; // holds 1d array of icon Image names
+        self.image2D = []; // holds 2d array of icon Image names
+        self.class1D = []; // holds 1d array of icon classes
+        self.class2D = []; // holds 2d array of icon classes
+        self.clicksImage = []; // holds array of clicked icon images
+        self.clicksID = []; // holds array of clicked icon ids
+        self.iconImages = ["music", "envelope", "home", "glass", "film", "camera", "calendar", "plane","globe", "tree-conifer", "piggy-bank", "scissors"];
         self.fieldSize = 4;
         self.numberOfClicks = 0;
-        self.isMatch = false;
         self.gameFieldHtml = "";
-
 
         self.convertTo2D = function (temp1D, temp2D) {
             let count = 0;
+            temp2D.length = 0;
             for (let i = 0; i < self.fieldSize; i++) {
                 let tempArray = [];
                 for (let j = 0; j < self.fieldSize; j++) {
@@ -85,7 +82,7 @@ angular.module('app', [])
         };
 
         self.generateIconImages = function () {
-            self.icons.length = 0;
+            let tempOrderedIcons = [];
             self.id1D.length = 0;
             self.class1D.length = 0;
             self.image1D.length = 0;
@@ -95,18 +92,16 @@ angular.module('app', [])
 
             for (let i = 0; i < numberIconsNeeded; i++) {
                 let randomIcon = Math.floor(Math.random() * tempIconImages.length);
-                self.icons.push(tempIconImages[randomIcon]);
-                self.icons.push(tempIconImages[randomIcon]);
+                tempOrderedIcons.push(tempIconImages[randomIcon]);
+                tempOrderedIcons.push(tempIconImages[randomIcon]);
                 tempIconImages.splice(randomIcon, 1);
             }
 
-            let tempArray = self.icons.slice();
-
-            for (let i = 0; i < self.icons.length; i++) { // randomize the order of the iconImages
-                if (tempArray.length > 0) {
-                    let rnd = Math.floor(Math.random() * (tempArray.length - 1));
-                    self.image1D.push(tempArray[rnd]);
-                    tempArray.splice(rnd, 1);
+            for (let i = 0; i < (self.fieldSize * self.fieldSize); i++) { // randomize the order of the iconImages
+                if (tempOrderedIcons.length > 0) {
+                    let rnd = Math.floor(Math.random() * (tempOrderedIcons.length - 1));
+                    self.image1D.push(tempOrderedIcons[rnd]);
+                    tempOrderedIcons.splice(rnd, 1);
                 }
             }
 
@@ -127,37 +122,35 @@ angular.module('app', [])
 
         self.reset = function () {
             self.message = "Game Reset!";
-            self.id2D.length = 0;
-            self.class2D.length = 0;
-            self.image2D.length = 0;
             self.score = 0;
-
             self.generateIconImages();
         };
 
         self.clickLogic = function (clickedId, clickedData, clickedClass) {
+            // If clicked on an already matched icon then return and do nothing
             if (clickedClass.includes('gameCellMatched')) return;
+
             let first, second;
+            let tempClassInsert = " col-md-2 ";
             self.message = '';
             self.clicksID.push(clickedId);
             first = parseInt(clickedId.substr(0, 1));
             second = parseInt(clickedId.substr(2, 3));
-            let tempClassInsert = " col-md-2 ";
             self.class2D[first][second] = "gameCell center-block glyphicon " + tempClassInsert + " glyphicon-" + self.image2D[first][second];
             self.drawField();
-
-
             self.numberOfClicks++;
+
             if (self.numberOfClicks === 2) {
-                self.clicks.push(clickedData);
-                if (self.clicks[0] === self.clicks[1] && self.clicksID[0] !== self.clicksID[1]) {
-                    self.isMatch = true;
+                self.clicksImage.push(clickedData);
+
+                if (self.clicksImage[0] === self.clicksImage[1] && self.clicksID[0] !== self.clicksID[1]) {
+                    // replace gameCell with gameCellMatched class in class2D for both matched icons
                     self.class2D[parseInt(self.clicksID[0][0])][parseInt(self.clicksID[0][2])] = "gameCellMatched center-block glyphicon "
-                        + tempClassInsert + " glyphicon-" + self.image2D[parseInt(self.clicksID[0][0])][parseInt(self.clicksID[0][2])]; // replace gameCell with gameCellMatched class in class2D
+                        + tempClassInsert + " glyphicon-" + self.image2D[parseInt(self.clicksID[0][0])][parseInt(self.clicksID[0][2])];
                     self.class2D[parseInt(self.clicksID[1][0])][parseInt(self.clicksID[1][2])] = "gameCellMatched center-block glyphicon "
-                        + tempClassInsert + " glyphicon-" + self.image2D[parseInt(self.clicksID[1][0])][parseInt(self.clicksID[1][2])]; // replace gameCell with gameCellMatched class in class2D
-                    self.drawField();
+                        + tempClassInsert + " glyphicon-" + self.image2D[parseInt(self.clicksID[1][0])][parseInt(self.clicksID[1][2])];
                     self.score += 2;
+                    self.drawField();
                     if (self.score === (self.fieldSize * self.fieldSize)) {
                         self.message = 'You Won!';
                     }
@@ -165,19 +158,20 @@ angular.module('app', [])
                     self.isMatch = false;
                 }
             } else if (self.numberOfClicks === 3) {
-                if (!self.isMatch) {
+                // If on the third click the first two don't match reset them to question signs
+                if (!(self.clicksImage[0] === self.clicksImage[1] && self.clicksID[0] !== self.clicksID[1])) {
                     self.class2D[parseInt(self.clicksID[0][0])][parseInt(self.clicksID[0][2])] = "gameCell center-block glyphicon " + tempClassInsert + " glyphicon-question-sign";
                     self.class2D[parseInt(self.clicksID[1][0])][parseInt(self.clicksID[1][2])] = "gameCell center-block glyphicon " + tempClassInsert + " glyphicon-question-sign";
                 }
                 self.class2D[first][second] = "gameCell center-block glyphicon " + tempClassInsert + " glyphicon-" + self.image2D[first][second];
-                self.drawField();
-                self.clicks.length = 0;
+                self.clicksImage.length = 0;
                 self.clicksID.length = 0;
                 self.clicksID.push(clickedId);
-                self.clicks.push(clickedData);
+                self.clicksImage.push(clickedData);
+                self.drawField();
                 self.numberOfClicks = 1;
             } else {
-                self.clicks.push(clickedData);
+                self.clicksImage.push(clickedData);
             }
         }
     });
