@@ -2,27 +2,21 @@
 <html lang="en" ng-app="app">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/ico" href="favicon.ico">
         <title>Memory Game</title>
-
+        <!-- Included Styles -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
-
         <link href="css/app.css" rel="stylesheet">
-
+        <!-- Included JS -->
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.min.js"></script>
-        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
         <script src="js/app.js"></script>
-        
-        <link rel="icon" type="image/ico" href="favicon.ico">
     </head>
     <body ng-controller="matchController as match">
         <div class="container">
             <div class="row">
                 <div id="score" class="col-md-offset-2 col-md-3 text-center">
-                    <div id="gameScore" class="h3" ng-bind="match.score"></div>
+                    <div id="gameScore" class="h3" ng-bind="'Score:' + match.score"></div>
                 </div>
                 <div class="col-md-2 text-center">
                     <button id="resetButton" type="button" class="btn btn-primary btn-lg" ng-click="match.reset()">Reset</button>
@@ -31,7 +25,7 @@
                     <div id="message" class="h4 alert alert-info" ng-show="match.message.length > 0" ng-bind="match.message"></div>
                 </div>
             </div>
-            <div id="gameField">
+            <div class="row">
                 <div id="field" class="center-block well" compile="match.gameFieldHtml"></div>
             </div>		
         </div>
